@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="ms">
+<head>
+  <meta charset="UTF-8">
+  <title>Rekod Kehadiran Staff Urut Saraf Tanjung Malim</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    :root {
+      --primary-color: #00695c; /* Warna tema hijau gelap professional */
+      --bg-color: #f0f2f5;
+      --card-bg: #ffffff;
+      --success: #2e7d32;
+      --danger: #c62828;
+      --warning: #ef6c00;
+      --text-color: #333;
+    }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: var(--bg-color);
+      padding: 20px;
+      margin: 0;
+      display: flex;
+      justify-content: center;
+      min-height: 100vh;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 480px;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    /* Header Card */
+    .header-card {
+      background: var(--primary-color);
+      color: white;
+      padding: 25px 20px;
+      border-radius: 15px;
+      text-align: center;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+    }
+
+    .clock {
+      font-size: 2.2rem;
+      font-weight: 700;
+      margin: 15px 0;
+      font-variant-numeric: tabular-nums;
+      letter-spacing: 2px;
+    }
+
+    .date {
+      font-size: 0.95rem;
+      opacity: 0.9;
+      text-transform: capitalize;
+    }
+
+    /* Main Box */
+    .box {
+      background: var(--card-bg);
+      padding: 25px;
+      border-radius: 15px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+    }
+
+    h2 {
+      margin-top: 0;
+      color: var(--primary-color);
+      font-size: 1.4rem;
+      margin-bottom: 25px;
+      text-align: center;
+      line-height: 1.3;
+    }
+
+    .form-group {
+      margin-bottom: 18px;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 8px;
+      font-weight: 600;
+      color: #444;
+      font-size: 0.9rem;
+    }
+
+    select {
+      width: 100%;
+      padding: 12px;
+      border: 2px solid #e0e0e0;
+      border-radius: 8px;
+      font-size: 1rem;
+      background-color: #fafafa;
+      transition: all 0.3s;
+      box-sizing: border-box;
+    }
+
+    select:focus {
+      border-color: var(--primary-color);
+      background-color: #fff;
+      outline: none;
+    }
+
+    .btn-group {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin-top: 25px;
+    }
+
+    button {
+      padding: 15px;
+      font-size: 0.95rem;
+      font-weight: 600;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: transform 0.1s, opacity 0.2s, box-shadow 0.2s;
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    }
+
+    button:active {
+      transform: scale(0.97);
+    }
+
+    button:disabled {
+      background-color: #cfd8dc !important;
+      cursor: not-allowed;
+      box-shadow: none;
+      color: #90a4ae;
+    }
+
+    .btn-in { background: var(--success); }
+    .btn-in:hover:not(:disabled) { background: #1b5e20; }
+
+    .btn-out { background: var(--danger); }
+    .btn-out:hover:not(:disabled) { background: #b71c1c; }
+
+    .btn-break { background: var(--warning); }
+    .btn-break:hover:not(:disabled) { background: #e65100; }
+
+    /* Toast Notification */
+    #toast {
+      visibility: hidden;
+      min-width: 280px;
+      background-color: #333;
+      color: #fff;
+      text-align: center;
+      border-radius: 50px;
+      padding: 16px;
+      position: fixed;
+      z-index: 1;
+      left: 50%;
+      bottom: 30px;
+      transform: translateX(-50%);
+      font-size: 16px;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+      opacity: 0;
+      transition: opacity 0.3s, bottom 0.3s;
+    }
+
+    #toast.show {
+      visibility: visible;
+      opacity: 1;
+      bottom: 50px;
+    }
+    #toast.success { background-color: var(--success); }
+    #toast.error { background-color: var(--danger); }
+
+    /* Loader */
+    .loader {
+      border: 3px solid #f3f3f3;
+      border-radius: 50%;
+      border-top: 3px solid #fff;
+      width: 16px;
+      height: 16px;
+      animation: spin 1s linear infinite;
+      display: none;
+    }
+    @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+  </style>
+</head>
+
+<body>
+
+<div class="container">
+  <div class="header-card">
+    <div class="date" id="currentDate">Sedang memuat...</div>
+    <div class="clock" id="currentTime">00:00:00</div>
+  </div>
+
+  <div class="box">
+    <h2>Rekod Kehadiran Staff<br>Urut Saraf Tanjung Malim</h2>
+
+    <div class="form-group">
+      <label for="nama">Nama Staff</label>
+      <select id="nama" onchange="toggleButtons()">
+        <option value="">-- Pilih Nama --</option>
+        <option value="Aizie">Aizie</option>
+        <option value="Staff 2">Staff 2</option>
+        <option value="Staff 3">Staff 3</option>
+      </select>
+    </div>
+
+    <div class="form-group">
+      <label for="shift">Shift</label>
+      <select id="shift" onchange="toggleButtons()">
+        <option value="">-- Pilih Shift --</option>
+        <option value="Pagi (9-6)">Pagi (09:00 - 18:00)</option>
+        <option value="Petang (1-10)">Petang (13:00 - 22:00)</option>
+      </select>
+    </div>
+
+    <div class="btn-group">
+      <button class="btn-in" id="btnIn" onclick="processAction('Clock In')" disabled>
+        <span>📥</span> Masuk
+      </button>
+      <button class="btn-out" id="btnOut" onclick="processAction('Clock Out')" disabled>
+        <span>📤</span> Keluar
+      </button>
+      <button class="btn-break" id="btnBreakStart" onclick="processAction('Break Start')" disabled>
+        <span>☕</span> Rehat
+      </button>
+      <button class="btn-break" id="btnBreakEnd" onclick="processAction('Break End')" disabled>
+        <span>🔙</span> Balik
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Toast Notification -->
+<div id="toast">Mesej</div>
+
+<script>
+  // ==========================================
+  // BAHAGIAN PENTING: MASUKKAN URL GOOGLE ANDA DI SINI
+  // ==========================================
+  const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxaE70KZ2fy-oniPiGeZ0mbRhfqGx4sBLYat_8DlLa56i8m830pT66t4DfQPshuUHFr/exec"; 
+
+  // 1. Fungsi Jam
+  function updateTime() {
+    const now = new Date();
+    document.getElementById('currentTime').textContent = now.toLocaleTimeString('ms-MY', { hour12: false });
+    document.getElementById('currentDate').textContent = now.toLocaleDateString('ms-MY', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
+  }
+  setInterval(updateTime, 1000);
+  updateTime();
+
+  // 2. Kawalan Butang
+  function toggleButtons() {
+    const nama = document.getElementById('nama').value;
+    const shift = document.getElementById('shift').value;
+    const buttons = document.querySelectorAll('button');
+    const isValid = (nama !== "" && shift !== "");
+    
+    buttons.forEach(btn => {
+      // Jangan disable jika butang sedang loading
+      if (!btn.querySelector('.loader')) {
+        btn.disabled = !isValid;
+      }
+    });
+  }
+
+  // 3. Hantar Data ke Google Sheet
+  function processAction(action) {
+    const nama = document.getElementById('nama').value;
+    const shift = document.getElementById('shift').value;
+    const btn = event.currentTarget; // Dapatkan butang yang ditekan
+
+    if (!nama || !shift) {
+      showToast("Sila lengkapkan borang.", "error");
+      return;
+    }
+
+    // Tukar butang kepada mode loading
+    const originalContent = btn.innerHTML;
+    btn.innerHTML = `<div class="loader" style="display:inline-block"></div> Memproses...`;
+    btn.disabled = true;
+
+    // Data yang akan dihantar
+    const data = {
+      nama: nama,
+      shift: shift,
+      action: action
+    };
+
+    // Hantar ke Google Apps Script
+    fetch(SCRIPT_URL, {
+      method: "POST",
+      body: JSON.stringify(data)
+    })
+    .then(res => res.json())
+    .then(data => {
+      // Berjaya
+      showToast(`${action} berjaya direkod!`, "success");
+      console.log("Success:", data);
+    })
+    .catch(err => {
+      // Ralat
+      showToast("Gagal menyimpan data.", "error");
+      console.error("Error:", err);
+    })
+    .finally(() => {
+      // Kembalikan butang asal
+      btn.innerHTML = originalContent;
+      btn.disabled = false;
+      toggleButtons(); // Semak status semula
+    });
+  }
+
+  // 4. Notifikasi Toast
+  function showToast(message, type) {
+    const x = document.getElementById("toast");
+    x.textContent = message;
+    x.className = "show " + type;
+    setTimeout(function(){ x.className = x.className.replace("show", ""); }, 3000);
+  }
+</script>
+
+</body>
+</html>
